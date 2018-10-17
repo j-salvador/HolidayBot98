@@ -1,4 +1,6 @@
 import random
+
+from discord import Game
 from discord.ext.commands import Bot
 
 BOT_PREFIX = ("?", "!")
@@ -22,13 +24,16 @@ def random_line(filename):
 
 
 def get_country_from_code(code):
-    data = open("fixed-countries.txt")
+    try:
+        data = open("fixed-countries.txt")
 
-    for line in data:
-        if code in line:
-            return line.split('\t')[1][:-1]  # remove \n character by slicing
+        for line in data:
+            if code in line:
+                return line.split('\t')[1][:-1]  # remove \n character by slicing
 
-    return "Incorrect code; cannot find country"
+        return "Incorrect code; cannot find country"
+    finally:
+        data.close()
 
 
 def generate_scenario():
@@ -55,22 +60,58 @@ def generate_scenario():
     # Get specific location
     specific_location = random_line("specific-locations.txt")[:-1]
 
-    print("\n\nCollated output:")
     return action + " in " + specific_location + ' ' + city + ", " + country + " with " + character
 
 
-@client.command(name='holiday',
-                description="Generates a holiday with a random activity, location and accomplice",
-                aliases=['Holiday', 'hol', 'Hol'])
-async def holiday():
-    await client.say(generate_scenario())
+# TODO: Currently not needed in program. Will look into removing altogether
+# @client.command(name='holiday',
+#                 description="Generates a holiday with a random activity, location and accomplice",
+#                 aliases=['Holiday', 'hol', 'Hol'])
+# async def holiday():
+#     await client.say(generate_scenario())
 
 
-@client.command(name='submit',
-                description="Accepts a submission to a specified category")
-async def submit():
-    pass
+# @client.command(name='submit_person',
+#                 description="Accepts a submission to the list of personas",
+#                 aliases=['submitperson', 'submitPerson', 'Submitperson', 'SubmitPerson'])
+# async def submit_person(value):
+def submit_person(value):
+    try:
+        file = open("Personas.txt", "r")
+
+        for line in file:
+            if value not in line:
+                if value is not None:
+                    print("Value:", value)
+                    write_to_file("Personas.txt", value)
+                    return True
+    finally:
+        file.close()
+
+@client.event
+async def on_message(message):
+    if message.content.upper().startswith("!HOLIDAY") or message.content.upper().startswith("!HOL"):
+        await client.send_message(message.channel, generate_scenario())
+
+    if message.content.upper().startswith("!SUBMITPERSON"):
+        print("message content:", message.content)
+        content = message.content.split(" ")
+        content = " ".join(content[1:])
+        submit_person(content)
+        await client.send_message(message.channel, "Submission successfully accepted")
 
 
+def write_to_file(filename, value):
+    try:
+        file = open(filename, 'a+')
+        file.write(value.title() + "\n")
+    finally:
+        file.close()
+
+
+@client.event
+async def on_ready():
+    await client.change_presence(game=Game(name="on holiday"))
+    print("Logged in as " + client.user.name)
 
 client.run(TOKEN)
