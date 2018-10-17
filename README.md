@@ -1,5 +1,5 @@
 
-![Banner](images/banner_wide_2.png)
+![Banner](images/banner_wide.png)
 
 
 ---
