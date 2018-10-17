@@ -43,7 +43,7 @@ def get_country_from_code(code):
             The country that matches the FIPS code if successful, otherwise an error message.
     """
     try:
-        data = open("fixed-countries.txt")
+        data = open("data/fixed-countries.txt")
 
         for line in data:
             if code in line:
@@ -63,7 +63,7 @@ def generate_scenario():
         -------
             The total string made up of all the components to create the holiday, or scenario.
     """
-    location = random_line("fixed-cities.txt")
+    location = random_line("data/fixed-cities.txt")
     location = location.split('\t')
     print(location)
 
@@ -77,14 +77,14 @@ def generate_scenario():
     print("Country:", country)
 
     # Get action
-    action = random_line("Verbs.txt")[:-1]
+    action = random_line("data/actions.txt")[:-1]
     print("Action:", action)
 
     # Get character
-    character = random_line("Personas.txt")[:-1]
+    character = random_line("data/persons.txt")[:-1]
 
     # Get specific location
-    specific_location = random_line("specific-locations.txt")[:-1]
+    specific_location = random_line("data/specific-locations.txt")[:-1]
 
     return action + " in " + specific_location + ' ' + city + ", " + country + " with " + character
 
@@ -177,15 +177,17 @@ async def on_message(message):
     if message.content.upper().startswith("!SUBMITACTION") or message.content.upper().startswith("!SA"):
         content = message.content.split(" ")
         content = " ".join(content[1:])
-        submit_suggestion("Verbs.txt", content)
+        submit_suggestion("data/actions.txt", content)
         await client.send_message(message.channel, "Submission successfully accepted")
 
     if message.content.upper().startswith("!SUBMITPERSON") or message.content.upper().startswith("!SP"):
         print("message content:", message.content)
         content = message.content.split(" ")
         content = " ".join(content[1:])
-        submit_suggestion("Personas.txt", content.title())
+        submit_suggestion("data/persons.txt", content.title())
         await client.send_message(message.channel, "Submission successfully accepted")
+
+    # TODO submit specific location
 
 
 @client.event
