@@ -133,10 +133,14 @@ def submit_suggestion(filename, value):
 
 def write_to_file(filename, value):
     """
+        Saves desired value to specified file, adding onto it's existing contents.
 
-    :param filename:
-    :param value:
-    :return:
+        Parameters
+        ----------
+        filename : str
+            Path of the desired file you want to write to.
+        value : str
+            The user's input of the value you want to save out to.
     """
     try:
         file = open(filename, 'a+')
@@ -152,6 +156,21 @@ def write_to_file(filename, value):
 
 @client.event
 async def on_message(message):
+    """
+        Asynchronous function that checks multiple conditional statements to see if a user's message begins with any
+        keywords. These keywords invoke functions to generate a scenario or to submit content based off what the user's
+        message is.
+
+        Parameters
+        ----------
+        message : str
+            User's message that is compared to 6 keywords to see if any action should be performed.
+
+        Returns
+        -------
+            The message that will be posted in the chat box the user originally typed in. Posting either a holiday
+            scenario or a message verifying the submission of content.
+    """
     if message.content.upper().startswith("!HOLIDAY") or message.content.upper().startswith("!HOL"):
         await client.send_message(message.channel, generate_scenario())
 
@@ -171,7 +190,12 @@ async def on_message(message):
 
 @client.event
 async def on_ready():
+    """
+        Sets the discord client to change it's presence (displayed game in discord client).
+        Also prints the client's username when it has loaded.
+    """
     await client.change_presence(game=Game(name="on holiday"))
     print("Logged in as " + client.user.name)
+
 
 client.run(TOKEN)
