@@ -1,5 +1,4 @@
 import random
-
 from discord import Game
 from discord.ext.commands import Bot
 
@@ -7,14 +6,21 @@ BOT_PREFIX = ("?", "!")
 TOKEN = 'NTAyMDAxNjYwMDI2MDI4MDUz.DqhlYg.OnTEBxq9p6HigbXNAKyYO15MwvQ'
 client = Bot(command_prefix=BOT_PREFIX)
 
-action = ""
-city = ""
-country = ""
-character = ""
-specific_location = ""
-
 
 def random_line(filename):
+    """
+        Randomly selects a line within a specified file.
+
+        Parameters
+        ----------
+        filename : str
+            Path of the desired file you want to retrieve the random line from.
+
+        Returns
+        -------
+        line : str
+            A random line within the specified file, in string format.
+    """
     file = open(filename, "r")
     line = next(file)
     for num, aline in enumerate(file):
@@ -24,6 +30,18 @@ def random_line(filename):
 
 
 def get_country_from_code(code):
+    """
+        Retrieves the name of the country based off what code is passed in.
+
+        Parameters
+        ----------
+        code : str
+            A 2-letter FIPS country code uniquely identifying a country.
+
+        Returns
+        -------
+            The country that matches the FIPS code if successful, otherwise an error message.
+    """
     try:
         data = open("fixed-countries.txt")
 
@@ -37,6 +55,14 @@ def get_country_from_code(code):
 
 
 def generate_scenario():
+    """
+        Main function that generates each individual component making up the holiday, or scenario.
+        Calls other functions to generate the city, country, action, and character.
+
+        Returns
+        -------
+            The total string made up of all the components to create the holiday, or scenario.
+    """
     location = random_line("fixed-cities.txt")
     location = location.split('\t')
     print(location)
@@ -75,38 +101,72 @@ def generate_scenario():
 #                 description="Accepts a submission to the list of personas",
 #                 aliases=['submitperson', 'submitPerson', 'Submitperson', 'SubmitPerson'])
 # async def submit_person(value):
-def submit_person(value):
+def submit_suggestion(filename, value):
+    """
+        Iterates through file, checks if submitted suggestion is present already. Writes to specified file,
+        updating list.
+
+        Parameters
+        ----------
+        filename : str
+            Path of the desired file you want to update.
+        value : str
+            The user's input of the value to be saved out to file. Whatever new content they want to add to the existing
+            database.
+
+        Returns
+        -------
+            True if successfully written out to the file.
+    """
     try:
-        file = open("Personas.txt", "r")
+        file = open(filename, "r")
 
         for line in file:
             if value not in line:
                 if value is not None:
                     print("Value:", value)
-                    write_to_file("Personas.txt", value)
+                    write_to_file(filename, value)
                     return True
     finally:
         file.close()
+
+
+def write_to_file(filename, value):
+    """
+
+    :param filename:
+    :param value:
+    :return:
+    """
+    try:
+        file = open(filename, 'a+')
+        file.write(value + "\n")
+        return True
+    # except Exception as e:
+    #     print(e)
+    #     # TODO CHECK if does anything or works
+    #     return False
+    finally:
+        file.close()
+
 
 @client.event
 async def on_message(message):
     if message.content.upper().startswith("!HOLIDAY") or message.content.upper().startswith("!HOL"):
         await client.send_message(message.channel, generate_scenario())
 
-    if message.content.upper().startswith("!SUBMITPERSON"):
+    if message.content.upper().startswith("!SUBMITACTION") or message.content.upper().startswith("!SA"):
+        content = message.content.split(" ")
+        content = " ".join(content[1:])
+        submit_suggestion("Verbs.txt", content)
+        await client.send_message(message.channel, "Submission successfully accepted")
+
+    if message.content.upper().startswith("!SUBMITPERSON") or message.content.upper().startswith("!SP"):
         print("message content:", message.content)
         content = message.content.split(" ")
         content = " ".join(content[1:])
-        submit_person(content)
+        submit_suggestion("Personas.txt", content.title())
         await client.send_message(message.channel, "Submission successfully accepted")
-
-
-def write_to_file(filename, value):
-    try:
-        file = open(filename, 'a+')
-        file.write(value.title() + "\n")
-    finally:
-        file.close()
 
 
 @client.event
