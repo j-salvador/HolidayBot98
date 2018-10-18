@@ -21,7 +21,8 @@ def random_line(filename):
         line : str
             A random line within the specified file, in string format.
     """
-    file = open(filename, "r")
+    # Added encoding type to work on linux. TODO: check it doesn't break Windows
+    file = open(filename, mode="r", encoding="iso_8859_1")
     line = next(file)
     for num, aline in enumerate(file):
         if random.randrange(num + 2): continue
