@@ -44,7 +44,7 @@ def get_country_from_code(code):
             The country that matches the FIPS code if successful, otherwise an error message.
     """
     try:
-        data = open("data/fixed-countries.txt")
+        data = open("data/fixed-countries.txt")  # TODO add open mode
 
         for line in data:
             if code in line:
