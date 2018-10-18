@@ -21,7 +21,8 @@ def random_line(filename):
         line : str
             A random line within the specified file, in string format.
     """
-    file = open(filename, "r")
+    # Added encoding type to work on linux. TODO: check it doesn't break Windows
+    file = open(filename, mode="r", encoding="iso_8859_1")
     line = next(file)
     for num, aline in enumerate(file):
         if random.randrange(num + 2): continue
@@ -43,7 +44,7 @@ def get_country_from_code(code):
             The country that matches the FIPS code if successful, otherwise an error message.
     """
     try:
-        data = open("data/fixed-countries.txt")
+        data = open("data/fixed-countries.txt")  # TODO add open mode
 
         for line in data:
             if code in line:
