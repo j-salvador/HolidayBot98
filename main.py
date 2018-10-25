@@ -182,13 +182,16 @@ async def on_message(message):
         await client.send_message(message.channel, "Submission successfully accepted")
 
     if message.content.upper().startswith("!SUBMITPERSON") or message.content.upper().startswith("!SP"):
-        print("message content:", message.content)
         content = message.content.split(" ")
         content = " ".join(content[1:])
         submit_suggestion("data/persons.txt", content.title())
         await client.send_message(message.channel, "Submission successfully accepted")
 
-    # TODO submit specific location
+    if message.content.upper().startswith("!SUBMITLOCATION") or message.content.upper().startswith("!SL"):
+        content = message.content.split(" ")
+        content = " ".join(content[1:])
+        submit_suggestion("data/specific-locations.txt", content)
+        await client.send_message(message.channel, "Submission successfully accepted")
 
 
 @client.event
